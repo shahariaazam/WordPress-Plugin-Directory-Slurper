@@ -8,6 +8,8 @@ function get_directory_by_type( $type ) {
 			return 'readmes';
 		case 'all':
 			return 'plugins';
+		case 'json':
+			return 'jsons';
 	}
 }
 

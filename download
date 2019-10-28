@@ -36,6 +36,17 @@ switch ( $type ) {
 		);
 		break;
 
+	case 'json':
+		$download_path = sprintf(
+			'jsons/%s.json',
+			$plugin
+		);
+		$download_url = sprintf(
+			'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[fields]=downloaded,active_install,short_description&request[slug]=%s',
+			$plugin
+		);
+		break;
+
 	case 'all':
 		$download_path = sprintf(
 			'zips/%s.zip',

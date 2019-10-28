@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+$args = $argv;
+$cmd = array_shift( $args );
+
+chdir( dirname( __FILE__ ) );
+
+$type = 'json';
+if ( ! empty( $args[0] ) ) {
+	$type = $args[0];
+}
+
+$parallel = 12;
+if ( ! empty( $args[1] ) ) {
+	$parallel = (int) $args[1];
+}
+
+if (
+	( $type !== 'readme' && $type !== 'all' && $type !== 'json' ) ||
+	$parallel < 1 || $parallel > 20
+) {
+	echo $cmd . ": invalid arguments\n";
+	echo 'Usage: php ' . $cmd . " [command] [parallel=12]\n\n";
+	echo "Available commands:\n";
+	echo "  all    - Downloads full plugin zips. This is the default.\n";
+	echo "  readme - Downloads plugin readmes only.\n";
+	echo "  json - Downloads plugin readmes only.\n";
+	echo "\n";
+	echo "Set 'parallel' to control the number of parallel processes.\n";
+	echo "  A smaller number may go more smoothly for slower connections.\n";
+	echo "  More than 12 is not recommended.\n";
+	die();
+}
+
+require_once 'common.php';
+
+$start_time = time();
+
+echo "\n";
+echo "You have not performed a successful sync yet.\n";
+echo "Settle in.  This will take a while.\n";
+echo "\n";
+
+echo "Fetching list of all plugins...\n";
+$plugins = file_get_contents( 'https://plugins.svn.wordpress.org/' );
+if ( ! $plugins ) {
+    // Something went wrong; there should be a warning message above
+    throw new Exception( 'Failed to download plugins list.' );
+}
+preg_match_all( '#<li><a href="([^/]+)/">([^/]+)/</a></li>#', $plugins, $matches );
+$plugins = $matches[1];
+
+printf(
+    "%d plugins to download\n",
+    count( $plugins )
+);
+
+$update_stats = download_plugins( $type, $plugins, false );
+//write_last_revision( $type, $svn_last_revision );
+
+$end_time = time();
+$minutes = floor( ( $end_time - $start_time ) / 60 );
+$seconds = ( $end_time - $start_time ) % 60;
+
+echo "[SUCCESS] Done updating plugins!\n";
+printf(
+	"It took %d minute%s and %d second%s to update %d plugin%s (%d failed).\n",
+	$minutes,
+	( $minutes === 1 ? '' : 's' ),
+	$seconds,
+	( $seconds === 1 ? '' : 's' ),
+	$update_stats['updated'],
+	( $update_stats['updated'] === 1 ? '' : 's' ),
+	$update_stats['failed']
+);
+echo "[DONE]\n";

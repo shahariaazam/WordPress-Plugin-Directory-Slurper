@@ -5,7 +5,7 @@ $cmd = array_shift( $args );
 
 chdir( dirname( __FILE__ ) );
 
-$type = 'all';
+$type = 'json';
 if ( ! empty( $args[0] ) ) {
 	$type = $args[0];
 }
@@ -235,7 +235,7 @@ if ( $last_revision === $svn_last_revision ) {
 		count( $plugins )
 	);
 
-	$update_stats = download_plugins( $type, $plugins, false );
+	$update_stats = download_plugins( "json", $plugins, false );
 	write_last_revision( $type, $svn_last_revision );
 
 }

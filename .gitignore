@@ -6,3 +6,7 @@ scans/
 !scans/README.md
 zips/
 !zips/README.md
+jsons/
+!jsons/README.md
+
+.idea/*
